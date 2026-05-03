@@ -31,9 +31,26 @@ Default to Bun instead of Node.js.
 ## Frontend And Testing
 
 - This app uses Bun HTML imports with React and Tailwind. Do not add Vite.
+- Use HeroUI components for matching UI primitives when available; notifications should use HeroUI toast via `ToastProvider` and `toast`.
 - Run the app with `bun run dev` for local development.
 - Run e2e tests with `bun run e2e`.
 - The Playwright dev server is configured for `http://localhost:3000`.
+
+## Static Deployment
+
+- Build static deploy artifacts with `bun run build`.
+- Deploy the generated `dist/` directory.
+- The app expects root deployment paths for `/manifest.webmanifest`, `/service-worker.js`, `/favicon.svg`, and `/icons/*`.
+- Configure static hosts to serve `index.html` as the SPA fallback for navigation requests.
+
+## README Screenshot Workflow
+
+- The README screenshot lives at `docs/web-authenticator-screenshot.png`.
+- When asked to update the screenshot, use the opened cmux in-app browser on `http://localhost:3000` when available.
+- Create three fake records through the UI before capturing the screenshot. Do not use real secrets.
+- Reset only this app's browser data when preparing a demo screenshot: clear the `web-authenticator` IndexedDB database, then reload the app.
+- Prefer `cmux browser surface:<n> screenshot --out docs/web-authenticator-screenshot.png` for the capture.
+- After filling demo records, blur the active input before capture so focus styling does not dominate the screenshot.
 
 ## cmux Browser Control
 

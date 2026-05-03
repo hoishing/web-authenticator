@@ -1,4 +1,5 @@
 import "@heroui/styles";
+import { ToastProvider } from "@heroui/react";
 import React from "react";
 import { createRoot } from "react-dom/client";
 import { App } from "./App";
@@ -37,5 +38,6 @@ if ("serviceWorker" in navigator) {
 createRoot(root).render(
   <React.StrictMode>
     <App />
+    <ToastProvider placement="top" />
   </React.StrictMode>,
 );

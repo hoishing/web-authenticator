@@ -1,4 +1,4 @@
-import { Button, Input, SearchField } from "@heroui/react";
+import { Button, Input, SearchField, toast } from "@heroui/react";
 import { countdown, createTOTP } from "totp-auth";
 import {
   Check,
@@ -73,7 +73,6 @@ export function App() {
   const [editingDescription, setEditingDescription] = useState("");
   const [query, setQuery] = useState("");
   const [epoch, setEpoch] = useState(getNowSeconds);
-  const [notice, setNotice] = useState<Notice | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
@@ -89,7 +88,7 @@ export function App() {
 
   useEffect(() => {
     refreshRecords()
-      .catch((error) => setNotice({ tone: "error", message: String(error) }))
+      .catch((error) => showNotice({ tone: "error", message: String(error) }))
       .finally(() => setIsLoading(false));
   }, []);
 
@@ -100,8 +99,12 @@ export function App() {
   }, []);
 
   function showNotice(notice: Notice) {
-    setNotice(notice);
-    window.setTimeout(() => setNotice(null), 2800);
+    if (notice.tone === "success") {
+      toast.success(notice.message);
+      return;
+    }
+
+    toast.danger(notice.message);
   }
 
   async function handleAdd(event: FormEvent<HTMLFormElement>) {
@@ -250,12 +253,6 @@ export function App() {
           Clear
         </Button>
       </div>
-
-      {notice ? (
-        <div className={`notice ${notice.tone}`} role="status">
-          {notice.message}
-        </div>
-      ) : null}
 
       <section className="totp-list" aria-label="TOTP records">
         <div className="list-header" role="row">

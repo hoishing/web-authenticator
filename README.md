@@ -9,6 +9,9 @@
   <em>Web Authenticator running locally with three demo TOTP records.</em>
 </p>
 
+> [!NOTE]
+> TOTP secrets are saved in this browser's IndexedDB. Anyone with access to this browser profile may be able to access the stored secrets, so keep the profile and device protected.
+
 The app stores TOTP secrets in the current browser's IndexedDB database, generates six-digit passcodes locally, and can be installed as a PWA. It does not send records to a backend.
 
 ## Features
@@ -64,6 +67,22 @@ bun run e2e
 - `start` builds CSS and runs the Bun server without hot reload.
 - `build` writes the static production bundle and PWA assets to `dist/`.
 - `e2e` runs the Playwright suite in `e2e/`.
+
+## Static Deployment
+
+Build the static app:
+
+```sh
+bun run build
+```
+
+Deploy the generated `dist/` directory to any static host. The app expects to run from the domain root so `/manifest.webmanifest`, `/service-worker.js`, `/favicon.svg`, and `/icons/*` resolve correctly.
+
+Recommended static-host settings:
+
+- Build command: `bun run build`
+- Output directory: `dist`
+- SPA fallback: serve `index.html` for navigation requests.
 
 ## Import And Export Format
 

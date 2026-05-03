@@ -262,25 +262,6 @@ label {
   line-height: var(--toolbar-control-height);
 }
 
-.notice {
-  margin-bottom: 12px;
-  padding: 11px 13px;
-  border-radius: var(--surface-radius);
-  font-size: 0.95rem;
-}
-
-.notice.success {
-  border: 1px solid color-mix(in oklab, var(--success) 50%, transparent);
-  background: color-mix(in oklab, var(--success) 20%, transparent);
-  color: var(--foreground);
-}
-
-.notice.error {
-  border: 1px solid color-mix(in oklab, var(--danger) 42%, transparent);
-  background: color-mix(in oklab, var(--danger) 22%, transparent);
-  color: var(--foreground);
-}
-
 .totp-list {
   overflow: hidden;
   padding: 0 4px 4px;

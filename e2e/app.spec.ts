@@ -102,6 +102,10 @@ test("imports, filters, edits, deletes, persists, and exposes PWA metadata", asy
 
   await page.getByRole("button", { name: "Delete NVIDIA work" }).click();
   await expect(page.getByText("NVIDIA work")).toBeHidden();
+  await expect(page.locator(".notice")).toHaveCount(0);
+  const toastRegion = page.locator('[data-slot="toast-region"]');
+  await expect(toastRegion).toHaveClass(/toast-region--top/);
+  await expect(toastRegion.getByText("Record deleted.")).toBeVisible();
 
   const manifest = await page.request.get("/manifest.webmanifest");
   await expect(manifest).toBeOK();
@@ -141,7 +145,10 @@ test("uses the requested HeroUI theme and add-record layout", async ({ page }) =
   await expect(page.getByText("NVIDIA:hoishing@gmail.com")).toBeVisible();
 
   await page.getByLabel("Search records").fill("Git");
-  const searchClearButtonRadius = await page.getByRole("button", { name: "Close" }).evaluate((button) => getComputedStyle(button).borderTopLeftRadius);
+  const searchClearButtonRadius = await page
+    .getByLabel("TOTP tools")
+    .getByRole("button", { name: "Close" })
+    .evaluate((button) => getComputedStyle(button).borderTopLeftRadius);
   await page.getByLabel("Search records").fill("");
   await expect(page.getByText("NVIDIA:hoishing@gmail.com")).toBeVisible();
 
