@@ -134,6 +134,13 @@ export async function deleteRecord(id: string): Promise<void> {
   await transactionDone(transaction);
 }
 
+export async function clearRecords(): Promise<void> {
+  const database = await openDatabase();
+  const transaction = database.transaction(STORE_NAME, "readwrite");
+  transaction.objectStore(STORE_NAME).clear();
+  await transactionDone(transaction);
+}
+
 export async function upsertImportedRecords(records: TotpRecordInput[]): Promise<{ added: number; updated: number }> {
   const database = await openDatabase();
   const transaction = database.transaction(STORE_NAME, "readwrite");

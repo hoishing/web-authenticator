@@ -14,7 +14,7 @@ import {
   X,
 } from "lucide-react";
 import { type ChangeEvent, type FormEvent, useEffect, useMemo, useRef, useState } from "react";
-import { deleteRecord, addRecord, loadRecords, type TotpRecord, updateRecord, upsertImportedRecords } from "./storage";
+import { clearRecords, deleteRecord, addRecord, loadRecords, type TotpRecord, updateRecord, upsertImportedRecords } from "./storage";
 import { exportOtpAuthText, parseOtpAuthText } from "./otpauth";
 
 type Notice = {
@@ -206,6 +206,13 @@ export function App() {
     showNotice({ tone: "success", message: "Record deleted." });
   }
 
+  async function handleClearRecords() {
+    await clearRecords();
+    setEditingId(null);
+    await refreshRecords();
+    showNotice({ tone: "success", message: "All records cleared." });
+  }
+
   return (
     <main className="app-shell">
       <section className="top-bar" aria-label="App header">
@@ -231,12 +238,16 @@ export function App() {
         </div>
         <input ref={fileInputRef} className="visually-hidden" type="file" accept=".txt,text/plain" onChange={handleImport} />
         <Button type="button" className="utility-button" variant="outline" onClick={() => fileInputRef.current?.click()}>
-          <Upload size={16} />
+          <Download size={16} />
           Import
         </Button>
         <Button type="button" className="utility-button" variant="outline" onClick={handleExport} isDisabled={records.length === 0}>
-          <Download size={16} />
+          <Upload size={16} />
           Export
+        </Button>
+        <Button type="button" className="utility-button" variant="outline" onClick={handleClearRecords} isDisabled={records.length === 0}>
+          <Trash2 size={16} />
+          Clear
         </Button>
       </div>
 
@@ -341,9 +352,8 @@ export function App() {
             onChange={(event) => setDraft((current) => ({ ...current, secret: event.target.value }))}
           />
         </label>
-        <Button type="submit" className="primary-button">
+        <Button type="submit" className="add-button" variant="secondary" isIconOnly aria-label="Add">
           <Plus size={18} />
-          Add
         </Button>
       </form>
     </main>

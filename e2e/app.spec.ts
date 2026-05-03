@@ -119,6 +119,15 @@ test("imports, filters, edits, deletes, persists, and exposes PWA metadata", asy
   await expect(page.getByRole("heading", { name: "Web Authenticator" })).toBeVisible();
   await expect(page.getByText("GitHub:hoishing")).toBeVisible();
   await expect(page.getByText("Loading records...")).toBeHidden();
+
+  await page.getByLabel("TOTP tools").getByRole("button", { name: "Clear" }).click();
+  await expect(page.getByText("GitHub:hoishing")).toBeHidden();
+  await expect(page.getByText("No TOTP records yet.")).toBeVisible();
+
+  await page.reload();
+  await expect(page.getByText("No TOTP records yet.")).toBeVisible();
+  await expect(page.getByRole("button", { name: "Export" })).toBeDisabled();
+  await expect(page.getByRole("button", { name: "Clear" })).toBeDisabled();
 });
 
 test("uses the requested HeroUI theme and add-record layout", async ({ page }) => {
@@ -163,6 +172,7 @@ test("uses the requested HeroUI theme and add-record layout", async ({ page }) =
     const searchGroup = document.querySelector<HTMLElement>(".search-field__group");
     const importButton = toolbar.querySelector<HTMLButtonElement>(".utility-button");
     const exportButton = [...toolbar.querySelectorAll<HTMLButtonElement>(".utility-button")].find((button) => button.textContent?.includes("Export"));
+    const clearButton = [...toolbar.querySelectorAll<HTMLButtonElement>(".utility-button")].find((button) => button.textContent?.includes("Clear"));
     const listHeader = document.querySelector<HTMLElement>(".list-header");
     const recordRow = document.querySelector<HTMLElement>(".record-row");
     const recordRows = [...document.querySelectorAll<HTMLElement>(".record-row")];
@@ -170,12 +180,13 @@ test("uses the requested HeroUI theme and add-record layout", async ({ page }) =
     const descriptionText = document.querySelector<HTMLElement>(".description-text");
     const searchInput = searchGroup.querySelector<HTMLInputElement>("input");
     const brandMark = document.querySelector<HTMLElement>(".brand-mark");
-    const primaryButton = document.querySelector<HTMLElement>(".primary-button");
+    const addButton = addForm.querySelector<HTMLButtonElement>(".add-button");
+    const addFieldLabels = [...addForm.querySelectorAll<HTMLElement>("label")];
     const actionButton = document.querySelector<HTMLElement>(".record-actions .button");
     const firstHeaderCell = document.querySelector<HTMLElement>('.list-header [role="columnheader"]:first-child');
     const lastHeaderCell = document.querySelector<HTMLElement>('.list-header [role="columnheader"]:last-child');
 
-    if (!appShell || !heading || !subtitle || !searchGroup || !importButton || !exportButton || !listHeader || !recordRow || recordRows.length < 2 || !passcodeButton || !descriptionText || !searchInput || !brandMark || !primaryButton || !actionButton || !firstHeaderCell || !lastHeaderCell) {
+    if (!appShell || !heading || !subtitle || !searchGroup || !importButton || !exportButton || !clearButton || !listHeader || !recordRow || recordRows.length < 2 || !passcodeButton || !descriptionText || !searchInput || !brandMark || !addButton || addFieldLabels.length !== 2 || !actionButton || !firstHeaderCell || !lastHeaderCell) {
       throw new Error("Missing toolbar controls");
     }
 
@@ -192,12 +203,15 @@ test("uses the requested HeroUI theme and add-record layout", async ({ page }) =
     const searchGroupRect = searchGroup.getBoundingClientRect();
     const importButtonRect = importButton.getBoundingClientRect();
     const exportButtonRect = exportButton.getBoundingClientRect();
+    const clearButtonRect = clearButton.getBoundingClientRect();
     const listHeaderStyle = getComputedStyle(listHeader);
     const recordRowStyle = getComputedStyle(recordRow);
     const lastRecordRow = recordRows[recordRows.length - 1];
     const lastRecordRowStyle = getComputedStyle(lastRecordRow);
     const passcodeStyle = getComputedStyle(passcodeButton);
     const descriptionTextStyle = getComputedStyle(descriptionText);
+    const addButtonRect = addButton.getBoundingClientRect();
+    const addButtonSvg = addButton.querySelector("svg");
 
     return {
       addFormBelowList: addRect.top > listRect.bottom,
@@ -207,15 +221,23 @@ test("uses the requested HeroUI theme and add-record layout", async ({ page }) =
       searchConsumesRemainingToolbarSpace: searchRect.right < countdownRect.left && searchRect.width > toolbarRect.width / 2,
       searchHeight: Math.round(searchGroupRect.height),
       countdownHeight: Math.round(countdownRect.height),
+      importWidth: Math.round(importButtonRect.width),
+      exportWidth: Math.round(exportButtonRect.width),
+      clearWidth: Math.round(clearButtonRect.width),
       importHeight: Math.round(importButtonRect.height),
       exportHeight: Math.round(exportButtonRect.height),
+      clearHeight: Math.round(clearButtonRect.height),
       importInToolbar: toolbar.contains(importButton),
       exportInToolbar: toolbar.contains(exportButton),
+      clearInToolbar: toolbar.contains(clearButton),
+      clearRightOfExport: clearButtonRect.left > exportButtonRect.right,
       fontSize: getComputedStyle(document.documentElement).fontSize,
       bodyFontSize: getComputedStyle(document.body).fontSize,
       headingFontSize: Number.parseFloat(getComputedStyle(heading).fontSize),
       subtitleFontSize: Number.parseFloat(getComputedStyle(subtitle).fontSize),
       toolbarButtonFontSize: getComputedStyle(importButton).fontSize,
+      toolbarButtonFontWeights: [importButton, exportButton, clearButton].map((button) => getComputedStyle(button).fontWeight),
+      countdownFontWeight: getComputedStyle(countdown).fontWeight,
       searchInputFontSize: getComputedStyle(searchInput).fontSize,
       listHeaderFontSize: listHeaderStyle.fontSize,
       listHeaderTextTransform: listHeaderStyle.textTransform,
@@ -240,12 +262,22 @@ test("uses the requested HeroUI theme and add-record layout", async ({ page }) =
       countdownRadius: getComputedStyle(countdown).borderTopLeftRadius,
       importRadius: getComputedStyle(importButton).borderTopLeftRadius,
       exportRadius: getComputedStyle(exportButton).borderTopLeftRadius,
+      clearRadius: getComputedStyle(clearButton).borderTopLeftRadius,
       listRadius: getComputedStyle(list).borderTopLeftRadius,
       passcodeRadius: passcodeStyle.borderTopLeftRadius,
       passcodeFontWeight: passcodeStyle.fontWeight,
       descriptionFontWeight: descriptionTextStyle.fontWeight,
-      primaryButtonRadius: getComputedStyle(primaryButton).borderTopLeftRadius,
+      addButtonRadius: getComputedStyle(addButton).borderTopLeftRadius,
+      addButtonWidth: Math.round(addButtonRect.width),
+      addButtonHeight: Math.round(addButtonRect.height),
+      addButtonText: addButton.innerText.trim(),
+      addButtonHasIcon: Boolean(addButtonSvg),
+      addButtonIsSecondary: addButton.classList.contains("button--secondary"),
       actionButtonRadius: getComputedStyle(actionButton).borderTopLeftRadius,
+      addLabelWidths: addFieldLabels.map((label) => Math.round(label.getBoundingClientRect().width)),
+      addLabelFontWeights: addFieldLabels.map((label) => getComputedStyle(label).fontWeight),
+      addInputWidths: [descriptionInput, secretInput].map((input) => Math.round(input.getBoundingClientRect().width)),
+      addInputFontWeights: [descriptionStyle.fontWeight, secretStyle.fontWeight],
       rowInsetLeft: Math.round(recordRow.getBoundingClientRect().left - listRect.left),
       rowInsetRight: Math.round(listRect.right - recordRow.getBoundingClientRect().right),
       passcodeFontSize: passcodeStyle.fontSize,
@@ -274,15 +306,22 @@ test("uses the requested HeroUI theme and add-record layout", async ({ page }) =
   expect(layout.searchConsumesRemainingToolbarSpace).toBe(true);
   expect(layout.searchHeight).toBe(36);
   expect(layout.countdownHeight).toBe(layout.searchHeight);
+  expect(layout.importWidth).toBe(layout.exportWidth);
+  expect(layout.clearWidth).toBe(layout.exportWidth);
   expect(layout.importHeight).toBe(layout.searchHeight);
   expect(layout.exportHeight).toBe(layout.searchHeight);
+  expect(layout.clearHeight).toBe(layout.searchHeight);
   expect(layout.importInToolbar).toBe(true);
   expect(layout.exportInToolbar).toBe(true);
+  expect(layout.clearInToolbar).toBe(true);
+  expect(layout.clearRightOfExport).toBe(true);
   expect(layout.fontSize).toBe("16px");
   expect(layout.bodyFontSize).toBe("16px");
   expect(layout.headingFontSize).toBeCloseTo(20.16, 2);
   expect(layout.subtitleFontSize).toBeCloseTo(12.8, 2);
   expect(layout.toolbarButtonFontSize).toBe("14px");
+  expect(layout.toolbarButtonFontWeights).toEqual(["400", "400", "400"]);
+  expect(layout.countdownFontWeight).toBe("400");
   expect(layout.searchInputFontSize).toBe("14px");
   expect(layout.listHeaderFontSize).toBe("12px");
   expect(layout.listHeaderTextTransform).toBe("none");
@@ -306,12 +345,23 @@ test("uses the requested HeroUI theme and add-record layout", async ({ page }) =
   expect(layout.countdownRadius).toBe(layout.resolvedSurfaceRadius);
   expect(layout.importRadius).toBe(layout.resolvedSurfaceRadius);
   expect(layout.exportRadius).toBe(layout.resolvedSurfaceRadius);
+  expect(layout.clearRadius).toBe(layout.resolvedSurfaceRadius);
   expect(layout.listRadius).toBe(layout.resolvedSurfaceRadius);
   expect(layout.passcodeRadius).toBe(layout.resolvedSurfaceRadius);
   expect(layout.passcodeFontWeight).toBe("400");
   expect(layout.descriptionFontWeight).toBe("400");
-  expect(layout.primaryButtonRadius).toBe(layout.resolvedSurfaceRadius);
+  expect(layout.addButtonRadius).toBe(layout.resolvedSurfaceRadius);
+  expect(layout.addButtonWidth).toBe(36);
+  expect(layout.addButtonHeight).toBe(36);
+  expect(layout.addButtonText).toBe("");
+  expect(layout.addButtonHasIcon).toBe(true);
+  expect(layout.addButtonIsSecondary).toBe(true);
   expect(layout.actionButtonRadius).toBe(layout.resolvedSurfaceRadius);
+  expect(layout.addLabelWidths[0]).toBeGreaterThan(200);
+  expect(layout.addLabelWidths[1]).toBe(layout.addLabelWidths[0]);
+  expect(layout.addLabelFontWeights).toEqual(["400", "400"]);
+  expect(layout.addInputWidths).toEqual(layout.addLabelWidths);
+  expect(layout.addInputFontWeights).toEqual(["400", "400"]);
   expect(searchClearButtonRadius).toBe(layout.resolvedSurfaceRadius);
   expect(layout.rowInsetLeft).toBe(4);
   expect(layout.rowInsetRight).toBe(4);
@@ -330,6 +380,57 @@ test("uses the requested HeroUI theme and add-record layout", async ({ page }) =
   expect(layout.secretBackground).not.toBe("rgb(243, 237, 246)");
   expect(layout.secretColor).not.toBe("rgb(32, 21, 34)");
   expect(layout.toolbarDisplay).toBe("flex");
+
+  await page.setViewportSize({ width: 520, height: 720 });
+
+  const compactAddForm = await page.evaluate(() => {
+    const addForm = document.querySelector<HTMLElement>(".add-form");
+    const addFieldLabels = [...document.querySelectorAll<HTMLElement>(".add-form label")];
+    const descriptionInput = document.querySelector<HTMLInputElement>('[aria-label="New record description"]');
+    const secretInput = document.querySelector<HTMLInputElement>('[aria-label="New record secret"]');
+
+    if (!addForm || addFieldLabels.length !== 2 || !descriptionInput || !secretInput) {
+      throw new Error("Missing narrow add-form elements");
+    }
+
+    return {
+      formHasNoHorizontalOverflow: addForm.scrollWidth <= addForm.clientWidth + 1,
+      labelWidths: addFieldLabels.map((label) => Math.round(label.getBoundingClientRect().width)),
+      labelTops: addFieldLabels.map((label) => Math.round(label.getBoundingClientRect().top)),
+      inputWidths: [descriptionInput, secretInput].map((input) => Math.round(input.getBoundingClientRect().width)),
+    };
+  });
+
+  expect(compactAddForm.formHasNoHorizontalOverflow).toBe(true);
+  expect(compactAddForm.labelWidths.every((width) => width >= 200)).toBe(true);
+  expect(compactAddForm.labelWidths[1]).toBe(compactAddForm.labelWidths[0]);
+  expect(compactAddForm.labelTops[1]).toBe(compactAddForm.labelTops[0]);
+  expect(compactAddForm.inputWidths).toEqual(compactAddForm.labelWidths);
+
+  await page.setViewportSize({ width: 480, height: 720 });
+
+  const stackedAddForm = await page.evaluate(() => {
+    const addForm = document.querySelector<HTMLElement>(".add-form");
+    const addFieldLabels = [...document.querySelectorAll<HTMLElement>(".add-form label")];
+    const descriptionInput = document.querySelector<HTMLInputElement>('[aria-label="New record description"]');
+    const secretInput = document.querySelector<HTMLInputElement>('[aria-label="New record secret"]');
+
+    if (!addForm || addFieldLabels.length !== 2 || !descriptionInput || !secretInput) {
+      throw new Error("Missing stacked add-form elements");
+    }
+
+    return {
+      formHasNoHorizontalOverflow: addForm.scrollWidth <= addForm.clientWidth + 1,
+      labelWidths: addFieldLabels.map((label) => Math.round(label.getBoundingClientRect().width)),
+      labelTops: addFieldLabels.map((label) => Math.round(label.getBoundingClientRect().top)),
+      inputWidths: [descriptionInput, secretInput].map((input) => Math.round(input.getBoundingClientRect().width)),
+    };
+  });
+
+  expect(stackedAddForm.formHasNoHorizontalOverflow).toBe(true);
+  expect(stackedAddForm.labelWidths[1]).toBe(stackedAddForm.labelWidths[0]);
+  expect(stackedAddForm.labelTops[1]).toBeGreaterThan(stackedAddForm.labelTops[0]);
+  expect(stackedAddForm.inputWidths).toEqual(stackedAddForm.labelWidths);
 });
 
 test("exports imported records as otpauth text", async ({ page }) => {

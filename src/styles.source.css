@@ -165,6 +165,7 @@ p {
   border: 1px solid var(--border);
   border-radius: var(--surface-radius);
   background: color-mix(in oklab, var(--surface) 90%, transparent);
+  grid-template-columns: repeat(2, minmax(200px, 1fr)) auto;
 }
 
 label {
@@ -174,6 +175,10 @@ label {
   color: var(--surface-foreground);
   font-size: 0.88rem;
   font-weight: 650;
+}
+
+.add-form label {
+  font-weight: 400;
 }
 
 .toolbar {
@@ -186,6 +191,7 @@ label {
 
 .toolbar > .button,
 .toolbar .utility-button {
+  width: 88px;
   min-height: var(--toolbar-control-height);
   height: var(--toolbar-control-height);
   padding: 0 12px;
@@ -194,8 +200,9 @@ label {
   background: var(--surface-secondary);
   color: var(--foreground);
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 400;
   gap: 7px;
+  justify-content: center;
 }
 
 .toolbar > .button:hover,
@@ -250,7 +257,7 @@ label {
   color: var(--accent);
   text-align: center;
   font-variant-numeric: tabular-nums;
-  font-weight: 750;
+  font-weight: 400;
   font-size: 14px;
   line-height: var(--toolbar-control-height);
 }
@@ -392,16 +399,24 @@ label {
   text-align: center;
 }
 
-.primary-button {
+.add-button {
   border-radius: var(--surface-radius);
-  background: var(--accent);
-  color: var(--accent-foreground);
+}
+
+.add-form .add-button {
+  width: var(--toolbar-control-height);
+  min-width: var(--toolbar-control-height);
+  height: var(--toolbar-control-height);
+  min-height: var(--toolbar-control-height);
 }
 
 .add-form .pale-input {
+  width: 100%;
+  min-width: 0;
   border-color: var(--border);
   background: var(--field-background);
   color: var(--field-foreground);
+  font-weight: 400;
 }
 
 .add-form .pale-input::placeholder {
@@ -423,7 +438,6 @@ label {
     padding-top: 18px;
   }
 
-  .add-form,
   .toolbar {
     display: grid;
     grid-template-columns: 1fr;
@@ -439,4 +453,19 @@ label {
     gap: 8px;
   }
 
+}
+
+@media (max-width: 516px) {
+  .add-form {
+    grid-template-columns: minmax(0, 1fr) auto;
+  }
+
+  .add-form label {
+    grid-column: 1 / -1;
+  }
+
+  .add-form .add-button {
+    grid-column: 2;
+    justify-self: end;
+  }
 }

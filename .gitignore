@@ -74,4 +74,4 @@ site/
 # custom
 try*
 secrets.toml
-secret-sample.txt
+authenticator.txt
