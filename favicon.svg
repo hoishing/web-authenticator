@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="Web Authenticator">
+  <rect width="128" height="128" rx="22" fill="#0b1110" />
+  <rect x="10" y="10" width="108" height="108" rx="18" fill="#2f2638" stroke="#d8bfd8" stroke-width="4" />
+  <path d="M44 59v-9a20 20 0 0 1 37-10" fill="none" stroke="#d8bfd8" stroke-width="8" stroke-linecap="round" stroke-linejoin="round" />
+  <rect x="34" y="56" width="60" height="42" rx="10" fill="none" stroke="#edf7f1" stroke-width="8" />
+  <path d="M64 74v9" stroke="#edf7f1" stroke-width="8" stroke-linecap="round" />
+</svg>

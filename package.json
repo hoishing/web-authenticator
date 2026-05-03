@@ -1,0 +1,32 @@
+{
+  "name": "web-authenticator",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "css:build": "tailwindcss -i ./src/styles.source.css -o ./src/styles.css --minify",
+    "dev": "bun run css:build && bun --hot ./index.ts",
+    "start": "bun run css:build && bun ./index.ts",
+    "build": "bun run css:build && bun build ./index.html --outdir ./dist --minify && cp manifest.webmanifest service-worker.js favicon.svg ./dist/ && mkdir -p ./dist/icons && cp ./icons/* ./dist/icons/",
+    "e2e": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.59.1",
+    "@tailwindcss/cli": "^4.2.4",
+    "@types/bun": "latest",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "tailwindcss": "^4.2.4"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@heroui/react": "^3.0.3",
+    "@heroui/styles": "^3.0.3",
+    "lucide-react": "^1.14.0",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "totp-auth": "^1.0.11"
+  }
+}
