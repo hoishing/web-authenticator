@@ -2,6 +2,7 @@ import { Button, Input, SearchField } from "@heroui/react";
 import { countdown, createTOTP } from "totp-auth";
 import {
   Check,
+  Copy,
   Download,
   KeyRound,
   LockKeyholeOpen,
@@ -220,8 +221,8 @@ export function App() {
       <div className="toolbar" aria-label="TOTP tools">
         <SearchField className="search-field" aria-label="Search records" value={query} onChange={setQuery}>
           <SearchField.Group>
-            <Search size={18} aria-hidden="true" />
-            <SearchField.Input placeholder="Search descriptions" />
+            <Search size={16} aria-hidden="true" />
+            <SearchField.Input placeholder="Search..." />
             <SearchField.ClearButton />
           </SearchField.Group>
         </SearchField>
@@ -229,12 +230,12 @@ export function App() {
           {remainingSeconds}s
         </div>
         <input ref={fileInputRef} className="visually-hidden" type="file" accept=".txt,text/plain" onChange={handleImport} />
-        <Button type="button" variant="outline" onClick={() => fileInputRef.current?.click()}>
-          <Upload size={18} />
+        <Button type="button" className="utility-button" variant="outline" onClick={() => fileInputRef.current?.click()}>
+          <Upload size={16} />
           Import
         </Button>
-        <Button type="button" variant="outline" onClick={handleExport} isDisabled={records.length === 0}>
-          <Download size={18} />
+        <Button type="button" className="utility-button" variant="outline" onClick={handleExport} isDisabled={records.length === 0}>
+          <Download size={16} />
           Export
         </Button>
       </div>
@@ -249,7 +250,7 @@ export function App() {
         <div className="list-header" role="row">
           <span role="columnheader">Passcode</span>
           <span role="columnheader">Description</span>
-          <span role="columnheader">Key</span>
+          <span role="columnheader">Actions</span>
         </div>
 
         {isLoading ? <div className="empty-state">Loading records...</div> : null}
@@ -265,7 +266,8 @@ export function App() {
           return (
             <article className="record-row" role="row" key={record.id}>
               <button className="passcode-button" type="button" onClick={() => handleCopyPasscode(record.secret)} aria-label={`Copy passcode for ${record.description}`}>
-                {passcode}
+                <span className="passcode-number">{passcode}</span>
+                <Copy size={14} aria-hidden="true" />
               </button>
               <div className="description-cell">
                 {isEditing ? (
@@ -284,32 +286,35 @@ export function App() {
                         }
                       }}
                     />
-                    <div className="row-actions">
-                      <Button type="button" isIconOnly aria-label="Save description" onClick={() => saveDescription(record.id)}>
-                        <Check size={16} />
-                      </Button>
-                      <Button type="button" isIconOnly aria-label="Cancel edit" onClick={() => setEditingId(null)}>
-                        <X size={16} />
-                      </Button>
-                    </div>
+                  </>
+                ) : (
+                  <span className="description-text">{record.description}</span>
+                )}
+              </div>
+              <div className="record-actions">
+                {isEditing ? (
+                  <>
+                    <Button type="button" isIconOnly aria-label="Save description" onClick={() => saveDescription(record.id)}>
+                      <Check size={16} />
+                    </Button>
+                    <Button type="button" isIconOnly aria-label="Cancel edit" onClick={() => setEditingId(null)}>
+                      <X size={16} />
+                    </Button>
                   </>
                 ) : (
                   <>
-                    <span className="description-text">{record.description}</span>
-                    <div className="row-actions">
-                      <Button type="button" isIconOnly aria-label={`Edit ${record.description}`} onClick={() => beginEdit(record)}>
-                        <Pencil size={16} />
-                      </Button>
-                      <Button type="button" isIconOnly aria-label={`Delete ${record.description}`} onClick={() => removeRecord(record.id)}>
-                        <Trash2 size={16} />
-                      </Button>
-                    </div>
+                    <Button type="button" isIconOnly variant="secondary" aria-label={`Edit ${record.description}`} onClick={() => beginEdit(record)}>
+                      <Pencil size={16} />
+                    </Button>
+                    <Button type="button" isIconOnly variant="secondary" aria-label={`Delete ${record.description}`} onClick={() => removeRecord(record.id)}>
+                      <Trash2 size={16} />
+                    </Button>
+                    <Button type="button" isIconOnly variant="secondary" aria-label={`Copy secret for ${record.description}`} onClick={() => handleCopySecret(record.secret)}>
+                      <KeyRound size={19} />
+                    </Button>
                   </>
                 )}
               </div>
-              <Button type="button" isIconOnly aria-label={`Copy secret for ${record.description}`} onClick={() => handleCopySecret(record.secret)}>
-                <KeyRound size={19} />
-              </Button>
             </article>
           );
         })}

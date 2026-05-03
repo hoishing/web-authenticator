@@ -39,6 +39,8 @@
   --warning-foreground: oklch(21.03% 0.0059 49.68);
   --radius: 0.25rem;
   --field-radius: 0.5rem;
+  --surface-radius: var(--field-radius);
+  --toolbar-control-height: 2.25rem;
   --font-instrument-sans: "Instrument Sans", ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --font-sans: var(--font-instrument-sans);
 }
@@ -89,16 +91,17 @@ body,
 }
 
 html {
-  font-size: 90%;
+  font-size: 100%;
 }
 
 body {
   margin: 0;
   background:
-    linear-gradient(180deg, color-mix(in oklab, var(--accent) 16%, transparent), transparent 280px),
+    linear-gradient(180deg, color-mix(in oklab, var(--surface-secondary) 34%, transparent), transparent 260px),
     var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
+  font-size: 16px;
 }
 
 button,
@@ -125,14 +128,14 @@ input {
   width: 48px;
   height: 48px;
   border: 1px solid color-mix(in oklab, var(--accent) 48%, transparent);
-  border-radius: 8px;
+  border-radius: var(--surface-radius);
   background: var(--surface-tertiary);
   color: var(--accent);
 }
 
 h1 {
   margin: 0;
-  font-size: clamp(1.65rem, 4vw, 2.25rem);
+  font-size: clamp(0.924rem, 2.24vw, 1.26rem);
   line-height: 1.05;
   letter-spacing: 0;
 }
@@ -140,6 +143,10 @@ h1 {
 p {
   margin: 6px 0 0;
   color: var(--muted);
+}
+
+.top-bar p {
+  font-size: 0.8rem;
 }
 
 .add-form,
@@ -156,7 +163,7 @@ p {
   margin-top: 16px;
   padding: 16px;
   border: 1px solid var(--border);
-  border-radius: 8px;
+  border-radius: var(--surface-radius);
   background: color-mix(in oklab, var(--surface) 90%, transparent);
 }
 
@@ -171,26 +178,56 @@ label {
 
 .toolbar {
   display: flex;
-  gap: 12px;
+  width: 100%;
+  gap: 8px;
   margin: 18px 0 12px;
   align-items: center;
 }
 
-.search-field {
-  min-width: min(420px, 100%);
-  flex: 1 1 auto;
+.toolbar > .button,
+.toolbar .utility-button {
+  min-height: var(--toolbar-control-height);
+  height: var(--toolbar-control-height);
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--surface-radius);
+  background: var(--surface-secondary);
+  color: var(--foreground);
+  font-size: 14px;
+  font-weight: 500;
+  gap: 7px;
 }
 
+.toolbar > .button:hover,
+.toolbar .utility-button:hover {
+  background: var(--surface-tertiary);
+}
+
+.search-field {
+  min-width: 0;
+  flex: 1 1 0;
+}
+
+.search-field__group,
 .search-field [role="group"] {
   display: flex;
+  flex: 1 1 auto;
   align-items: center;
   gap: 10px;
-  min-height: 42px;
-  padding: 0 12px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--field-background);
+  min-width: 0;
+  min-height: var(--toolbar-control-height);
+  height: var(--toolbar-control-height);
   width: 100%;
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--surface-radius);
+  background: var(--surface-secondary);
+  color: var(--foreground);
+  font-size: 14px;
+}
+
+.search-field__clear-button {
+  border-radius: var(--surface-radius);
 }
 
 .search-field input {
@@ -200,23 +237,28 @@ label {
   outline: 0;
   background: transparent;
   color: var(--field-foreground);
+  font-size: 14px;
 }
 
 .countdown {
   min-width: 58px;
-  padding: 10px 12px;
-  border: 1px solid color-mix(in oklab, var(--accent) 42%, transparent);
-  border-radius: 8px;
+  height: var(--toolbar-control-height);
+  padding: 0 12px;
+  border: 0;
+  border-radius: var(--surface-radius);
+  background: var(--surface-secondary);
   color: var(--accent);
   text-align: center;
   font-variant-numeric: tabular-nums;
   font-weight: 750;
+  font-size: 14px;
+  line-height: var(--toolbar-control-height);
 }
 
 .notice {
   margin-bottom: 12px;
   padding: 11px 13px;
-  border-radius: 8px;
+  border-radius: var(--surface-radius);
   font-size: 0.95rem;
 }
 
@@ -234,51 +276,86 @@ label {
 
 .totp-list {
   overflow: hidden;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: color-mix(in oklab, var(--surface) 84%, transparent);
+  padding: 0 4px 4px;
+  border: 0;
+  border-radius: var(--surface-radius);
+  background: var(--surface-secondary);
 }
 
 .list-header {
   align-items: center;
-  padding: 12px 14px;
-  border-bottom: 1px solid var(--border);
+  padding: 10px 16px;
+  border-bottom: 1px solid color-mix(in oklab, var(--border) 68%, transparent);
+  background: var(--surface-secondary);
   color: var(--muted);
-  font-size: 0.82rem;
-  font-weight: 750;
-  text-transform: uppercase;
+  font-size: 12px;
+  font-weight: 500;
+  text-transform: none;
+  border-top-left-radius: var(--surface-radius);
+  border-top-right-radius: var(--surface-radius);
+}
+
+.list-header [role="columnheader"] {
+  border-radius: var(--surface-radius);
 }
 
 .record-row {
   align-items: center;
-  min-height: 70px;
-  padding: 12px 14px;
-  border-bottom: 1px solid color-mix(in oklab, var(--border) 80%, transparent);
+  min-height: 56px;
+  padding: 12px 16px;
+  border-bottom: 1px solid color-mix(in oklab, var(--border) 50%, transparent);
+  background: var(--surface);
+  font-size: 14px;
 }
 
 .record-row:last-child {
   border-bottom: 0;
 }
 
+.list-header + .record-row {
+  border-top-left-radius: var(--surface-radius);
+  border-top-right-radius: var(--surface-radius);
+}
+
+.record-row:last-of-type {
+  border-bottom: 0;
+  border-bottom-left-radius: var(--surface-radius);
+  border-bottom-right-radius: var(--surface-radius);
+}
+
 .passcode-button {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
   width: fit-content;
+  min-height: 28px;
+  height: 28px;
   min-width: 9ch;
-  padding: 8px 10px;
-  border: 1px solid color-mix(in oklab, var(--accent) 48%, transparent);
-  border-radius: 8px;
-  background: color-mix(in oklab, var(--accent) 18%, transparent);
+  padding: 0;
+  border: 0;
+  border-radius: var(--surface-radius);
+  background: transparent;
   color: var(--foreground);
   cursor: pointer;
-  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
-  font-size: 1.22rem;
+  font-size: 14px;
+  font-weight: 400;
+}
+
+.passcode-number {
   font-variant-numeric: tabular-nums;
-  font-weight: 800;
   letter-spacing: 0;
 }
 
 .passcode-button:hover {
-  border-color: var(--accent);
-  background: color-mix(in oklab, var(--accent) 28%, transparent);
+  color: var(--accent);
+}
+
+.passcode-button svg {
+  color: var(--muted);
+}
+
+.passcode-button:hover svg {
+  color: var(--accent);
 }
 
 .description-cell {
@@ -293,10 +370,20 @@ label {
   overflow-wrap: anywhere;
 }
 
-.row-actions {
-  display: flex;
-  flex: 0 0 auto;
+.record-actions {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
   gap: 6px;
+  width: 132px;
+}
+
+.record-actions .button {
+  width: 100%;
+  min-height: 32px;
+  height: 32px;
+  min-width: 0;
+  border-radius: var(--surface-radius);
 }
 
 .empty-state {
@@ -306,6 +393,7 @@ label {
 }
 
 .primary-button {
+  border-radius: var(--surface-radius);
   background: var(--accent);
   color: var(--accent-foreground);
 }
@@ -351,7 +439,4 @@ label {
     gap: 8px;
   }
 
-  .row-actions {
-    flex-direction: column;
-  }
 }

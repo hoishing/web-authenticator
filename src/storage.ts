@@ -35,8 +35,19 @@ function openDatabase(): Promise<IDBDatabase> {
       }
     };
 
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error ?? new Error("Unable to open IndexedDB"));
+    request.onsuccess = () => {
+      const database = request.result;
+      database.onversionchange = () => database.close();
+      resolve(database);
+    };
+    request.onerror = () => {
+      databasePromise = undefined;
+      reject(request.error ?? new Error("Unable to open IndexedDB"));
+    };
+    request.onblocked = () => {
+      databasePromise = undefined;
+      reject(new Error("IndexedDB is blocked by another open app tab. Close the other tab and refresh."));
+    };
   });
 
   return databasePromise;
