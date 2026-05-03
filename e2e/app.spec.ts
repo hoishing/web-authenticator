@@ -70,13 +70,13 @@ test("imports, filters, edits, deletes, persists, and exposes PWA metadata", asy
   const manifest = await page.request.get("/manifest.webmanifest");
   await expect(manifest).toBeOK();
   expect(manifest.headers()["content-type"]).toMatch(/application\/manifest\+json/);
-  expect((await manifest.json()).theme_color).toBe("#b48ead");
+  expect((await manifest.json()).theme_color).toBe("#ff9a00");
 
   const serviceWorker = await page.request.get("/service-worker.js");
   await expect(serviceWorker).toBeOK();
 });
 
-test("uses the requested purple layout and add-record styling", async ({ page }) => {
+test("uses the requested HeroUI theme and add-record layout", async ({ page }) => {
   const layout = await page.evaluate(() => {
     const toolbar = document.querySelector<HTMLElement>(".toolbar");
     const search = document.querySelector<HTMLElement>(".search-field");
@@ -96,12 +96,17 @@ test("uses the requested purple layout and add-record styling", async ({ page })
     const addRect = addForm.getBoundingClientRect();
     const descriptionStyle = getComputedStyle(descriptionInput);
     const secretStyle = getComputedStyle(secretInput);
+    const rootStyle = getComputedStyle(document.documentElement);
 
     return {
       addFormBelowList: addRect.top > listRect.bottom,
       searchWiderThanCountdown: searchRect.width > countdownRect.width * 4,
       fontSize: getComputedStyle(document.documentElement).fontSize,
-      bodyBackground: getComputedStyle(document.body).backgroundColor,
+      accent: rootStyle.getPropertyValue("--accent").trim(),
+      background: rootStyle.getPropertyValue("--background").trim(),
+      fieldBackground: rootStyle.getPropertyValue("--field-background").trim(),
+      radius: rootStyle.getPropertyValue("--radius").trim(),
+      fontSans: rootStyle.getPropertyValue("--font-sans").trim(),
       descriptionBackground: descriptionStyle.backgroundColor,
       descriptionColor: descriptionStyle.color,
       secretBackground: secretStyle.backgroundColor,
@@ -113,11 +118,15 @@ test("uses the requested purple layout and add-record styling", async ({ page })
   expect(layout.addFormBelowList).toBe(true);
   expect(layout.searchWiderThanCountdown).toBe(true);
   expect(layout.fontSize).toBe("14.4px");
-  expect(layout.bodyBackground).toBe("rgb(17, 16, 25)");
-  expect(layout.descriptionBackground).toBe("rgb(243, 237, 246)");
-  expect(layout.descriptionColor).toBe("rgb(32, 21, 34)");
-  expect(layout.secretBackground).toBe("rgb(243, 237, 246)");
-  expect(layout.secretColor).toBe("rgb(32, 21, 34)");
+  expect(layout.accent).toMatch(/^oklch\(77\.36% 0?\.1735 65\.05\)$/);
+  expect(layout.background).toMatch(/^oklch\(12(?:\.00)?% 0(?:\.0000)? 65\.05\)$/);
+  expect(layout.fieldBackground).toMatch(/^oklch\(21\.03% 0(?:\.0000)? 65\.05\)$/);
+  expect(layout.radius).toMatch(/^0?\.25rem$/);
+  expect(layout.fontSans).toContain("Instrument Sans");
+  expect(layout.descriptionBackground).not.toBe("rgb(243, 237, 246)");
+  expect(layout.descriptionColor).not.toBe("rgb(32, 21, 34)");
+  expect(layout.secretBackground).not.toBe("rgb(243, 237, 246)");
+  expect(layout.secretColor).not.toBe("rgb(32, 21, 34)");
   expect(layout.toolbarDisplay).toBe("flex");
 });
 
